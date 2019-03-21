@@ -1,0 +1,8 @@
+{
+	"name": "googlag",
+	"version": "1.9.2.1",
+	"description": "NKVD nearly",
+	"main": "googlag.py",
+	"author": "DAG1",
+	"dependencies": {}
+}
