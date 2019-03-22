@@ -1,5 +1,6 @@
 const Discord = require('./discord.js')
 const botconfig = require('./botconfig.json');
+var servers = require("./servers.json");
 
 const bot = new Discord.Client({disableEveryone: true});
 
@@ -23,13 +24,13 @@ bot.on("message", async message => {
         if(cmd === `${prefix}вставить`){
             message.delete();
             let userWithProblem = message.guild.member(message.mentions.users.first() || message.guild.members.get(args[0]));
-            if (!userWithProblem) return message.channel.send("Выбери живую жертву").then(msg => {
+            if (!userWithProblem) return message.channel.send(`<@${message.member.id}>, Выбери живую жертву`).then(msg => {
                 msg.delete(180000);
             });
-            if (!message.member.hasPermission("MANAGE_MESSAGES")) return message.channel.send("Опа, еще один стахановец?").then(msg => {
+            if (!message.member.hasPermission("MANAGE_MESSAGES")) return message.channel.send(`<@${message.member.id}>, Опа, еще один стахановец?`).then(msg => {
                 msg.delete(180000);
             });
-            if (userWithProblem.hasPermission("MANAGE_MESSAGES")) return message.channel.send("Товарищу присунуть решил?").then(msg => {
+            if (userWithProblem.hasPermission("MANAGE_MESSAGES")) return message.channel.send(`<@${message.member.id}>, Товарищу присунуть решил?`).then(msg => {
                 msg.delete(180000);
             });
 
@@ -45,7 +46,7 @@ bot.on("message", async message => {
             .addField("Оправдания подозреваемого:", problemReason?problemReason:"В экстазе");
 
             let logschannel = message.guild.channels.find('name', "logs")
-            if (!logschannel) return message.channel.send("Сука, киноленту-то вставь").then(msg => {
+            if (!logschannel) return message.channel.send(`<@${message.member.id}>, Сука, киноленту-то вставь`).then(msg => {
                 msg.delete(180000);
             });
             
@@ -58,16 +59,16 @@ bot.on("message", async message => {
         else if (cmd === `${prefix}вытащить`){
             message.delete();
             let userWithProblem = message.guild.member(message.mentions.users.first() || message.guild.members.get(args[0]));
-            if (!userWithProblem) return message.channel.send("Отряд уже в пути").then(msg => {
+            if (!userWithProblem) return message.channel.send(`<@${message.member.id}>, Отряд уже в пути`).then(msg => {
                 msg.delete(180000);
             });
-            if (!message.guild.member(message.mentions.users.first() || message.guild.members.get(args[0])).mute) return message.channel.send("Уложить его? Это с легкостью").then(msg => {
+            if (!message.guild.member(message.mentions.users.first() || message.guild.members.get(args[0])).mute) return message.channel.send(`<@${message.member.id}>, Уложить его? Это с легкостью`).then(msg => {
                 msg.delete(180000);
             });
-            if (!message.member.hasPermission("MANAGE_MESSAGES")) return message.channel.send("Опа, еще один стахановец?").then(msg => {
+            if (!message.member.hasPermission("MANAGE_MESSAGES")) return message.channel.send(`<@${message.member.id}>, Опа, еще один стахановец?`).then(msg => {
                 msg.delete(180000);
             });
-            if (userWithProblem.hasPermission("MANAGE_MESSAGES")) return message.channel.send("Товарищу присунуть решил?").then(msg => {
+            if (userWithProblem.hasPermission("MANAGE_MESSAGES")) return message.channel.send(`<@${message.member.id}>, Товарищу присунуть решил?`).then(msg => {
                 msg.delete(180000);
             });
 
@@ -83,7 +84,7 @@ bot.on("message", async message => {
             .addField("Комменатрии врача:", helpReason?helpReason:"В экстазе");
             
             logschannel = message.guild.channels.find('name', "logs");
-            if (!logschannel) return message.channel.send("Сука, киноленту-то вставь").then(msg => {
+            if (!logschannel) return message.channel.send(`<@${message.member.id}>, Сука, киноленту-то вставь`).then(msg => {
                 msg.delete(180000);
             })
             
@@ -96,11 +97,11 @@ bot.on("message", async message => {
             message.delete();
             if (!message.member.roles.exists('name', "НКВД")) return
             let dinnerRoom = goolag.children.find(channel => channel.name == "Столовка" && channel.type == "voice");
-            if (!dinnerRoom) return message.channel.send("Расходимся поцаны, пока только галька").then(msg => {
+            if (!dinnerRoom) return message.channel.send(`<@${message.member.id}>, Расходимся поцаны, пока только галька`).then(msg => {
                 msg.delete(180000);
             });
             let places = goolag.children.filter(function(c){return (c.type == "voice") && (c.name != "Столовка")});
-            if (!places) return message.channel.send("Всех уже приняли").then(msg => {
+            if (!places) return message.channel.send(`<@${message.member.id}>, Всех уже приняли`).then(msg => {
                 msg.delete(180000);
             });
             let nigers = new Discord.Collection();
@@ -112,16 +113,16 @@ bot.on("message", async message => {
 
             // Прочесываем рядовых
             nigers = nigers.filter(function(c){return !c.roles.exists('name', 'НКВД')})
-            if (nigers.length == 0) return message.channel.send("Всех уже приняли").then(msg => {
+            if (nigers.length == 0) return message.channel.send(`<@${message.member.id}>, Всех уже приняли`).then(msg => {
                 msg.delete(180000);
             });
 
             let dinnerchat = goolag.children.find(channel => channel.name == "столовка" && channel.type == "text")
-            if (!dinnerchat) return message.channel.send('Немые еще и ослепли').then(msg => {
+            if (!dinnerchat) return message.channel.send(`<@${message.member.id}>, Немые еще и ослепли`).then(msg => {
                 msg.delete(180000);
             });
-            logschannel = goolag.children.find('name', "logs")
-            if (!logschannel) return message.channel.send("Сука, киноленту-то вставь").then(msg => {
+            logschannel = goolag.children.find('name', "logs");
+            if (!logschannel) return message.channel.send(`<@${message.member.id}>, Сука, киноленту-то вставь`).then(msg => {
                 msg.delete(180000);
             });
 
@@ -143,6 +144,48 @@ bot.on("message", async message => {
             .addField("Время сбора:", message.createdAt)
             .addField("Комменатрии ответственного:", activityReason?activityReason:"Срочная необходимость"));
         }
+        else if (cmd === `${prefix}коллаборационист`){
+            message.delete();
+            let newWorker = message.guild.member(message.mentions.users.first() || message.guild.members.get(args[0]));
+            if (!newWorker) return message.channel.send("Отряд уже в пути").then(msg => {
+                msg.delete(180000);
+            });
+            if (message.guild.member(message.mentions.users.first() || message.guild.members.get(args[0])).roles.exists('name', "В гулаге")) return message.channel.send(`<@${message.member.id}>, <@${newWorker.id}> уже на содержании`).then(msg => {
+                msg.delete(180000);
+            });
+            if (!message.member.roles.exists('name', "НКВД")) return message.channel.send(`<@${message.member.id}>, Жить типо надоело?`).then(msg => {
+                msg.delete(180000);
+            });
+
+            logschannel = goolag.children.find('name', "logs")
+            if (!logschannel) return message.channel.send(`<@${message.member.id}>, Сука, киноленту-то вставь`).then(msg => {
+                msg.delete(180000);
+            });
+
+            let workReason = args.join(" ").slice(22);
+            if (newWorker.roles.exists('name', "НКВД")){ 
+                logschannel.send(new Discord.RichEmbed()
+                .setDescription("~Рапорт~")
+                .setColor("#9a0007")
+                .addField("Крыса:", `<@${message.author.id}>. ID: ${message.author.id}`)
+                .addField("Рапорт из:", message.channel)
+                .addField("Время подачи:", message.createdAt)
+                .addField("Суть:", workReason?workReason:"Ну, он это, собак ебет"));
+                return message.channel.send(`<@${message.member.id}>, Рапорт накатан`).then(msg => {
+                    msg.delete(180000);});
+            }
+            message.channel.send(message.guild.id);
+            message.channel.send(`<@${newWorker.id}> теперь офицально трудоустроен! Ваша семья в надежных руках!`);
+            logschannel.send(new Discord.RichEmbed()
+                .setDescription("~Трудоустройство~")
+                .setColor("#9a0007")
+                .addField("Трудоустроен:", `<@${newWorker.id}>. ID: ${newWorker.id}`)
+                .addField("Ответственный:", `<@${message.author.id}>. ID: ${message.author.id}`)
+                .addField("Трансфер из:", message.channel)
+                .addField("Время трансфера:", message.createdAt)
+                .addField("Причина трудоустройства:", workReason?workReason:"Ну, он это, собак ебет"));
+            newWorker.addRole(servers[message.guild.id].jail);
+        }
         else if (cmd === `${prefix}help`){
             message.delete();
             message.channel.send(new Discord.RichEmbed()
@@ -151,6 +194,7 @@ bot.on("message", async message => {
             .addField("Кара:", "!вставить - gag\n!вытащить - ungag")
             .addField("Разное:", "!help - список команды")
             .addField("НКВД")
+            .addField("Трудоустройство:", "!коллаборационист - работа на шахте. Семья в могиле")
             .addField("ГУЛАГ:", "!обед - сбор"))
             .then(msg => {
                 msg.delete(180000);
