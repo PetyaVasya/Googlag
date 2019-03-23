@@ -1,6 +1,9 @@
-const Discord = require('./discord.js')
+const Discord = require('./discord.js');
+const fs = require("fs");
 const botconfig = require('./botconfig.json');
 var servers = require("./servers.json");
+var phrases = require("./phrases.json");
+var votes = require("./votes.json");
 
 const bot = new Discord.Client({disableEveryone: true});
 
@@ -16,7 +19,7 @@ bot.on("message", async message => {
     }
     else{
         if (message.channel.name === "logs") message.delete();
-        let prefix = botconfig.prefix;
+        let prefix = servers[message.guild.id].prefix;
         let messageArray = message.content.split(" ");
         let cmd = messageArray[0];
         let args = messageArray.slice(1);
@@ -81,7 +84,7 @@ bot.on("message", async message => {
             .addField("Врач:", `<@${message.author.id}>. ID: ${message.author.id}`)
             .addField("Больница:", message.channel)
             .addField("Время выздоровления:", message.createdAt)
-            .addField("Комменатрии врача:", helpReason?helpReason:"В экстазе");
+            .addField("Комменатрии врача:", helpReason?helpReason:"Было не просто, но мы смогли вывернуть его обратно");
             
             logschannel = message.guild.channels.find('name', "logs");
             if (!logschannel) return message.channel.send(`<@${message.member.id}>, Сука, киноленту-то вставь`).then(msg => {
@@ -90,7 +93,7 @@ bot.on("message", async message => {
             
             logschannel.send(helpEmbed);
 
-            message.guild.member(userWithProblem).setMute(true, problemReason);
+            message.guild.member(userWithProblem).setMute(false, helpReason);
             // message.channel.send("");
         }
         else if (cmd == `${prefix}обед` && (goolag.children.exists('id', message.channel.id))){
@@ -174,7 +177,6 @@ bot.on("message", async message => {
                 return message.channel.send(`<@${message.member.id}>, Рапорт накатан`).then(msg => {
                     msg.delete(180000);});
             }
-            message.channel.send(message.guild.id);
             message.channel.send(`<@${newWorker.id}> теперь офицально трудоустроен! Ваша семья в надежных руках!`);
             logschannel.send(new Discord.RichEmbed()
                 .setDescription("~Трудоустройство~")
@@ -188,17 +190,79 @@ bot.on("message", async message => {
         }
         else if (cmd === `${prefix}help`){
             message.delete();
-            message.channel.send(new Discord.RichEmbed()
+            helpEmbed = new Discord.RichEmbed()
             .setDescription("Команды")
             .setColor("#e56b00")
-            .addField("Кара:", "!вставить - gag\n!вытащить - ungag")
-            .addField("Разное:", "!help - список команды")
-            .addField("НКВД")
-            .addField("Трудоустройство:", "!коллаборационист - работа на шахте. Семья в могиле")
-            .addField("ГУЛАГ:", "!обед - сбор"))
+            .addField("Кара:", "!вставить <to> <reason>(opt) - gag\n!вытащить <from> <reason>(opt) - ungag")
+            .addField("Разное:", "!help - список команды\n!тролльнуть - када делать нехуй");
+            if (message.member.roles.exists('name', "Тролль")){
+                helpEmbed.addField("Тролль:", `!тролльнуть <victim>(opt) <Your trolling>(opt) - нацеленный удар`);
+            }
+            if (message.member.roles.exists('name', "НКВД")){
+                helpEmbed.addField("НКВД:")
+                .addField("Трудоустройство:", "!коллаборационист <who> <reason>(opt) - работа на шахте. Семья в могиле")
+                .addField("ГУЛАГ:", "!обед <reason>(opt) - сбор");
+            }
+            message.channel.send(helpEmbed)
             .then(msg => {
                 msg.delete(180000);
             });
+        }
+        else if (cmd === `${prefix}тролльнуть`){
+            message.delete();
+            trollPhr = phrases["trolling"]
+            let victim = message.guild.member(message.mentions.users.first() || message.guild.members.get(args[0]));
+            if (victim) {
+                if (message.member.roles.exists('name', "Тролль")){
+                    let realTrolling = args.join(" ").slice(22);
+                    if (realTrolling)
+                        return message.channel.send(`<@${victim.id}>, ${realTrolling}`);
+                    else
+                        return message.channel.send(`<@${victim.id}>, ${trollPhr[Math.floor(Math.random()*trollPhr.length)]["phrase"]}`);
+                }
+                else
+                    return message.reply(`${trollPhr[Math.floor(Math.random()*trollPhr.length)]["phrase"]}`);
+            }
+            else
+                return message.reply(`${trollPhr[Math.floor(Math.random()*trollPhr.length)]["phrase"]}`);
+        }
+        else if (cmd  === `${prefix}голосование`){
+            message.delete();
+            if (args.join(" ").search('"') == -1) return message.reply("Регламент соблюдай").then(msg => msg.delete(180000))
+            let vote = args.join(" ").split('"');
+            let question = vote[1];
+            if (!question) return message.reply("Вопрос то какой?").then(msg => msg.delete(180000))
+            voteEmbed = new Discord.RichEmbed()
+            .setDescription(`Голосование by <@${message.member.id}>`)
+            .setColor("#e56b00")
+            .addField("Вопрос:", question);
+            let vars = vote[2].split(" ").filter(v => v !== "");
+            if (vars.length == 0 || vars.length > 7) return message.reply("Регламент соблюдай").then(msg => msg.delete(180000))
+            let varsStr = "";
+            (vars.slice(0, 5)).forEach((variant, num) => {
+                varsStr += (num + 1) + ": " + variant + "\n";
+            });
+            voteEmbed.addField('Варианты:', varsStr);
+            message.channel.send(voteEmbed).then(msg => msg.delete(60000));
+            let users = ""
+            old = JSON.stringify(votes).substr(0, JSON.stringify(votes).length - 1);
+            if (old[old.length - 1] === "}")
+                old += ","
+            fs.writeFile("votes.json", JSON.stringify(JSON.parse(old + `"${message.id}":{"vars":[{"name":"${vars.slice(0, 5).join('"},name":"')}"}],"users":[]}}`)), 
+                        function(err) {
+                            if (err) {
+                                console.log(err);
+                            }
+                        });
+            let max = 4, time = 60000
+            // if (vars[0]){ let max = parseInt(vars[0])}
+            // if (vars[1] && (parseInt(vars) > 60000)) {let time = parseInt(vars[1])}
+            message.channel.awaitMessages(msg => msg.content.startsWith("!за"), { max: max, time: time, errors: ['time'] })
+                .then(collected => {console.log(collected)})
+                .catch(collected => console.log(`After a minute, only ${collected.size} out of 4 voted.`));
+        }
+        else if (cmd.startsWith(prefix)){
+            message.delete();
         }
     }
 });
